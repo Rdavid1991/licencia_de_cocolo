@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>¡Cuenta Regresiva Especial!</title>
+    <!-- Tailwind CSS para diseño rápido y limpio -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <!-- Canvas Confetti para la animación final -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: radial-gradient(circle at center, #1e1b4b 0%, #0f172a 100%);
+        }
+        .flip-card {
+            background: rgba(255, 255, 255, 0.07);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+        @keyframes pulse-slow {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        .animate-pulse-slow {
+            animation: pulse-slow 3s infinite ease-in-out;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-center text-white overflow-hidden select-none px-4">
+
+    <!-- Fondo decorativo con luces difuminadas -->
+    <div class="absolute top-1/4 left-1/4 w-72 h-72 bg-pink-500 rounded-full filter blur-[120px] opacity-20 pointer-events-none"></div>
+    <div class="absolute bottom-1/4 right-1/4 w-72 h-72 bg-violet-500 rounded-full filter blur-[120px] opacity-20 pointer-events-none"></div>
+
+    <!-- CONTENEDOR PRINCIPAL -->
+    <div class="z-10 text-center max-w-2xl w-full">
+        
+        <!-- Título que cambia según el estado -->
+        <h1 id="main-title" class="text-3xl md:text-5xl font-extrabold mb-8 tracking-tight bg-clip-text text-transparent bg-gradient-to-r frefrom-pink-400 via-purple-400 to-indigo-400 drop-shadow-sm transition-all duration-500">
+            Falta muy poco para que Cocolo tenga su licencia
+        </h1>
+
+        <!-- CONTADOR (Días, Horas, Minutos, Segundos) -->
+        <div id="countdown-container" class="grid grid-cols-4 gap-3 md:gap-6 justify-center items-center">
+            
+            <!-- Días -->
+            <div class="flex flex-col items-center">
+                <div class="flip-card w-20 h-24 md:w-28 md:h-32 rounded-2xl flex items-center justify-center text-3xl md:text-5xl font-bold text-pink-400 border-b-4 border-pink-500 transition-all duration-300">
+                    <span id="days">00</span>
+                </div>
+                <span class="text-xs md:text-sm font-semibold tracking-wider text-slate-400 mt-2 uppercase">Días</span>
+            </div>
+
+            <!-- Horas -->
+            <div class="flex flex-col items-center">
+                <div class="flip-card w-20 h-24 md:w-28 md:h-32 rounded-2xl flex items-center justify-center text-3xl md:text-5xl font-bold text-purple-400 border-b-4 border-purple-500 transition-all duration-300">
+                    <span id="hours">00</span>
+                </div>
+                <span class="text-xs md:text-sm font-semibold tracking-wider text-slate-400 mt-2 uppercase">Horas</span>
+            </div>
+
+            <!-- Minutos -->
+            <div class="flex flex-col items-center">
+                <div class="flip-card w-20 h-24 md:w-28 md:h-32 rounded-2xl flex items-center justify-center text-3xl md:text-5xl font-bold text-indigo-400 border-b-4 border-indigo-500 transition-all duration-300">
+                    <span id="minutes">00</span>
+                </div>
+                <span class="text-xs md:text-sm font-semibold tracking-wider text-slate-400 mt-2 uppercase">Minutos</span>
+            </div>
+
+            <!-- Segundos -->
+            <div class="flex flex-col items-center">
+                <div class="flip-card w-20 h-24 md:w-28 md:h-32 rounded-2xl flex items-center justify-center text-3xl md:text-5xl font-bold text-cyan-400 border-b-4 border-cyan-500 scale-105 shadow-cyan-500/10 shadow-lg">
+                    <span id="seconds">00</span>
+                </div>
+                <span class="text-xs md:text-sm font-semibold tracking-wider text-slate-400 mt-2 uppercase">Segundos</span>
+            </div>
+
+        </div>
+
+        <!-- MENSAJE DE CELEBRACIÓN OCULTO POR DEFECTO -->
+        <div id="celebration-message" class="hidden transform scale-95 opacity-0 transition-all duration-1000 ease-out flex flex-col items-center justify-center">
+            <div class="text-6xl md:text-8xl mb-6 animate-bounce">🎉</div>
+            <h2 class="text-4xl md:text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 via-pink-400 to-cyan-400 animate-pulse-slow">
+                ¡Hoy es el dia, por fin Cocolo tendrá su licencia!
+            </h2>
+            <p class="text-slate-300 mt-4 text-lg md:text-xl max-w-md mx-auto">
+                ¡Vamos a celebrar a lo grande!
+            </p>
+            <button onclick="lanzarMasConfeti()" class="mt-8 px-6 py-3 bg-gradient-to-r from-pink-500 to-purple-600 rounded-full font-bold shadow-lg shadow-purple-500/30 hover:shadow-purple-500/50 hover:scale-105 active:scale-95 transition-all cursor-pointer">
+                ¡Lanzar más confeti! 🚀
+            </button>
+        </div>
+
+    </div>
+
+    <!-- LÓGICA DEL TEMPORIZADOR Y ANIMACIONES -->
+    <script>
+        // Fecha objetivo: 23 de Junio de 2026 a las 10:45:00
+        const targetDate = new Date('June 23, 2026 10:45:00').getTime();
+        let confettiInterval;
+
+        function updateCountdown() {
+            const now = new Date().getTime();
+            const difference = targetDate - now;
+
+            // Si la fecha ya pasó o llegó a cero
+            if (difference <= 0) {
+                clearInterval(countdownTimer);
+                triggerCelebration();
+                return;
+            }
+
+            // Cálculos de tiempo
+            const d = Math.floor(difference / (1000 * 60 * 60 * 24));
+            const h = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const m = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
+            const s = Math.floor((difference % (1000 * 60)) / 1000);
+
+            // Inyectar valores con formato de dos dígitos
+            document.getElementById('days').innerText = d < 10 ? '0' + d : d;
+            document.getElementById('hours').innerText = h < 10 ? '0' + h : h;
+            document.getElementById('minutes').innerText = m < 10 ? '0' + m : m;
+            document.getElementById('seconds').innerText = s < 10 ? '0' + s : s;
+        }
+
+        function triggerCelebration() {
+            // Ocultar elementos del contador
+            document.getElementById('countdown-container').classList.add('hidden');
+            document.getElementById('main-title').classList.add('hidden');
+
+            // Mostrar mensaje de celebración con animación fluida
+            const message = document.getElementById('celebration-message');
+            message.classList.remove('hidden');
+            setTimeout(() => {
+                message.classList.remove('scale-95', 'opacity-0');
+                message.classList.add('scale-100', 'opacity-100');
+            }, 50);
+
+            // Primer gran disparo de confeti en ráfaga lateral
+            dispararConfetiEspectacular();
+            
+            // Dejar un flujo constante automático cada 3 segundos
+            confettiInterval = setInterval(lanzarMasConfeti, 3000);
+        }
+
+        function dispararConfetiEspectacular() {
+            const duration = 5 * 1000;
+            const animationEnd = Date.now() + duration;
+            const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
+
+            function randomInRange(min, max) {
+                return Math.random() * (max - min) + min;
+            }
+
+            const interval = setInterval(function() {
+                const timeLeft = animationEnd - Date.now();
+
+                if (timeLeft <= 0) {
+                    return clearInterval(interval);
+                }
+
+                const particleCount = 50 * (timeLeft / duration);
+                // Ráfagas desde los lados de la pantalla
+                confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } }));
+                confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } }));
+            }, 250);
+        }
+
+        function lanzarMasConfeti() {
+            // Explosión rápida desde el centro/abajo
+            confetti({
+                particleCount: 150,
+                spread: 80,
+                origin: { y: 0.6 }
+            });
+        }
+
+        // Ejecutar el intervalo de actualización cada segundo
+        const countdownTimer = setInterval(updateCountdown, 1000);
+        
+        // Ejecución inicial inmediata para evitar el "00" parpadeante al cargar
+        updateCountdown();
+    </script>
+</body>
+</html>
